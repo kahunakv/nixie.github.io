@@ -1,0 +1,42 @@
+---
+sidebar_position: 2
+title: Struct and aggregate actors
+---
+
+# Struct and aggregate actors
+
+## Struct messages
+
+Use the struct interfaces and `SpawnStruct` when request or response messages are value types:
+
+```csharp
+public readonly record struct Add(int Left, int Right);
+public readonly record struct Sum(int Value);
+
+public sealed class CalculatorActor : IActorStruct<Add, Sum>
+{
+    public Task<Sum> Receive(Add message) =>
+        Task.FromResult(new Sum(message.Left + message.Right));
+}
+
+IActorRefStruct<CalculatorActor, Add, Sum> calculator =
+    system.SpawnStruct<CalculatorActor, Add, Sum>();
+
+Sum sum = await calculator.Ask(new Add(2, 3));
+```
+
+## Aggregate actors
+
+Aggregate actors receive queued requests in batches. They are useful when processing many items together is cheaper than paying the per-item cost:
+
+```csharp
+public sealed class BatchWriter : IActorAggregate<WriteItem>
+{
+    public Task Receive(List<WriteItem> messages) => storage.WriteBatch(messages);
+}
+
+IActorRefAggregate<BatchWriter, WriteItem> writer =
+    system.SpawnAggregate<BatchWriter, WriteItem>();
+```
+
+Aggregate request/response actors implement `IActorAggregate<TRequest, TResponse>` and receive a `List<ActorMessageReply<TRequest, TResponse>>`, allowing each request to complete its own reply.

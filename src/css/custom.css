@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --ifm-color-primary: #087b9d;
+  --ifm-color-primary-dark: #076f8d;
+  --ifm-color-primary-darker: #076986;
+  --ifm-color-primary-darkest: #05566e;
+  --ifm-color-primary-light: #0987ad;
+  --ifm-color-primary-lighter: #098db4;
+  --ifm-color-primary-lightest: #0aa0cc;
+  --ifm-font-family-base: 'Manrope', system-ui, sans-serif;
+  --ifm-font-family-monospace: 'DM Mono', monospace;
+  --ifm-heading-font-weight: 800;
+  --ifm-code-font-size: 90%;
+  --ifm-navbar-height: 4.35rem;
+  --docusaurus-highlighted-code-line-bg: rgba(8, 123, 157, .1);
+}
+[data-theme='dark'] { --ifm-color-primary: #78dcf7; --ifm-color-primary-dark: #5ed5f5; --ifm-color-primary-darker: #51d2f4; --ifm-color-primary-darkest: #1bc4f0; --ifm-color-primary-light: #92e3f9; --ifm-background-color: #081421; --ifm-background-surface-color: #0e1c2b; --docusaurus-highlighted-code-line-bg: rgba(120, 220, 247, .12); }
+.navbar { box-shadow: none; border-bottom: 1px solid var(--ifm-toc-border-color); }
+.navbar__brand { letter-spacing: -.03em; }.navbar__title { font-weight: 800; }
+.navbar__logo img { width: 29px; height: 29px; }
+.theme-doc-markdown h1 { letter-spacing: -.045em; font-size: 2.9rem; }.theme-doc-markdown h2 { letter-spacing: -.025em; }
+.theme-doc-sidebar-container { border-right-color: var(--ifm-toc-border-color) !important; }
+.pagination-nav__link { border-radius: 7px; }
+.footer--dark { background: #07111f; }
+code { border-radius: 4px; }

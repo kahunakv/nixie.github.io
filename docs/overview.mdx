@@ -1,0 +1,36 @@
+---
+slug: /
+sidebar_position: 1
+title: Why Nixie?
+description: A lightweight, strongly typed actor model for C# and .NET.
+---
+
+# Typed actors, without the heavy runtime
+
+Nixie is a small in-process actor framework built on the .NET Task Parallel Library. Actors own their state, process messages asynchronously, and communicate through strongly typed references.
+
+```text
+caller ── typed message ──▶ actor inbox ──▶ Receive(message)
+       ◀── typed Task<T> ────────────────┘  (Ask only)
+```
+
+## What you get
+
+- **Compile-time contracts.** Request and response types are part of every actor interface and reference.
+- **Two messaging styles.** Use `Send` for fire-and-forget work or `Ask` for a typed response.
+- **Explicit overload behavior.** Bound an inbox, check admission with `TrySend` or `TryAsk`, and prioritize control messages.
+- **Useful actor variants.** Class, struct-message, aggregate, and router APIs cover common performance and distribution patterns.
+- **Managed lifecycle.** Name and look up actors, schedule messages, stop timers, shut actors down gracefully, and wait for pending work.
+- **Familiar .NET integration.** Constructor injection and `Microsoft.Extensions.Logging` work without a separate hosting model.
+
+## When Nixie fits
+
+Nixie is a good fit when a single .NET process needs isolated mutable state, serialized per-actor work, or high-volume message passing without coordinating locks by hand. It does not provide cluster membership, remote transport, or durable message storage; choose a distributed actor runtime when those are requirements.
+
+## Requirements
+
+- .NET SDK 8.0 or later
+- Nixie 1.2.5
+- Nullable reference types are recommended
+
+[Install Nixie and build your first actor →](./getting-started)

@@ -1,0 +1,50 @@
+---
+sidebar_position: 2
+title: Request and response
+---
+
+# Request and response
+
+Implement `IActor<TRequest, TResponse>` when callers need a result.
+
+```csharp
+public sealed record LookupUser(Guid Id);
+public sealed record UserView(Guid Id, string Name);
+
+public sealed class UserActor : IActor<LookupUser, UserView>
+{
+    public Task<UserView?> Receive(LookupUser message)
+    {
+        UserView user = new(message.Id, "Ada");
+        return Task.FromResult<UserView?>(user);
+    }
+}
+```
+
+```csharp
+IActorRef<UserActor, LookupUser, UserView> users =
+    system.Spawn<UserActor, LookupUser, UserView>();
+
+UserView? user = await users.Ask(
+    new LookupUser(id),
+    TimeSpan.FromSeconds(2));
+```
+
+When the timeout elapses, `Ask` throws `AskTimeoutException`. Overloads can also include an explicit sender reference.
+
+## Admission-aware asks
+
+For a bounded inbox, `TryAsk` checks capacity before creating reply machinery:
+
+```csharp
+if (users.TryAsk(new LookupUser(id), out Task<UserView?>? reply))
+{
+    UserView? result = await reply;
+}
+else
+{
+    // Not enqueued: back off, retry, or shed the request.
+}
+```
+
+A `false` result means the message was never delivered, so retrying is safe. See [Backpressure and admission](../patterns/backpressure).

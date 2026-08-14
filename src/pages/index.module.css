@@ -1,0 +1,42 @@
+.hero { position: relative; overflow: hidden; padding: 8rem 0 6.5rem; background: #07111f; color: #f7fbff; }
+.hero::before { content: ''; position: absolute; inset: 0; opacity: .22; background-image: linear-gradient(rgba(137, 229, 255, .18) 1px, transparent 1px), linear-gradient(90deg, rgba(137, 229, 255, .18) 1px, transparent 1px); background-size: 56px 56px; mask-image: linear-gradient(to bottom, black, transparent 85%); }
+.glow { position: absolute; width: 52rem; height: 52rem; top: -28rem; right: -10rem; border-radius: 50%; background: #167dff; filter: blur(110px); opacity: .25; }
+.heroInner { position: relative; }
+.eyebrow { display: flex; align-items: center; gap: .7rem; font: 700 .73rem/1 var(--ifm-font-family-monospace); letter-spacing: .12em; text-transform: uppercase; color: #9cb5c9; }
+.eyebrow span { width: 7px; height: 7px; border-radius: 50%; background: #75f0be; box-shadow: 0 0 14px #75f0be; }
+.title { margin: 1.6rem 0 1.4rem; max-width: 900px; font-size: clamp(3.6rem, 8vw, 7.2rem); line-height: .95; letter-spacing: -.066em; color: #f7fbff; }
+.title em { font-weight: 500; color: #85dfff; }
+.subtitle { max-width: 650px; font-size: 1.28rem; line-height: 1.65; color: #afc0cf; }
+.buttons { display: flex; flex-wrap: wrap; gap: .9rem; margin-top: 2.2rem; }
+.primaryButton, .secondaryButton { padding: .95rem 1.25rem; border-radius: 7px; font-weight: 750; transition: transform .15s ease, background .15s ease; }
+.primaryButton { background: #84e4ff; color: #07111f; }
+.primaryButton span { margin-left: 1.4rem; }
+.secondaryButton { border: 1px solid #34475a; color: #d8e4ec; }
+.primaryButton:hover, .secondaryButton:hover { transform: translateY(-2px); text-decoration: none; }
+.primaryButton:hover { color: #07111f; background: #a1edff; }
+.secondaryButton:hover { color: white; border-color: #6a849c; }
+.install { display: inline-flex; align-items: center; gap: .75rem; margin-top: 3.7rem; padding: .75rem 1rem; border: 1px solid #293b4d; border-radius: 7px; background: rgba(3, 11, 20, .65); color: #c5d5df; }
+.install span { color: #75f0be; }
+.install code { background: transparent; border: 0; color: inherit; }
+.featureSection { background: #f3f7f9; color: #152330; padding: 5rem 0; }
+.featureGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+.featureGrid article { padding: .5rem 2.6rem 1rem 0; }
+.featureGrid article + article { border-left: 1px solid #ced9df; padding-left: 2.6rem; }
+.featureGrid article > span { font: 600 .72rem/1 var(--ifm-font-family-monospace); letter-spacing: .1em; color: #167d9e; }
+.featureGrid h3 { color: #152330; font-size: 1.3rem; margin: 1.1rem 0 .7rem; }
+.featureGrid p { margin: 0; color: #566975; line-height: 1.7; }
+.codeSection { padding: 7rem 0; background: white; color: #152330; }
+.codeGrid { display: grid; grid-template-columns: .85fr 1.15fr; gap: 6rem; align-items: center; }
+.kicker { font: 700 .72rem/1 var(--ifm-font-family-monospace); letter-spacing: .12em; text-transform: uppercase; color: #147d9c; }
+.codeGrid h2 { margin: 1rem 0 1.4rem; color: #152330; font-size: clamp(2.2rem, 4vw, 3.6rem); line-height: 1.03; letter-spacing: -.045em; }
+.codeGrid p { color: #5d6b74; line-height: 1.75; font-size: 1.05rem; }
+.textLink { display: inline-block; margin-top: .8rem; font-weight: 750; color: #0d6988; }
+.textLink span { margin-left: .4rem; }
+.codeWindow { overflow: hidden; border: 1px solid #223347; border-radius: 10px; background: #0b1727; box-shadow: 0 30px 70px rgba(11, 35, 52, .22); }
+.codeTop { display: flex; align-items: center; gap: 7px; padding: .85rem 1rem; border-bottom: 1px solid #213146; background: #101e30; }
+.codeTop i { width: 8px; height: 8px; border-radius: 50%; background: #405166; }
+.codeTop i:first-child { background: #ff7d75; }.codeTop i:nth-child(2) { background: #f7c862; }.codeTop i:nth-child(3) { background: #66d69c; }
+.codeTop span { margin-left: .5rem; color: #8295a9; font: 500 .72rem/1 var(--ifm-font-family-monospace); }
+.codeWindow pre { margin: 0; padding: 2rem; background: transparent; color: #d6e2ee; font-size: .88rem; line-height: 1.65; }
+.codeWindow code { background: transparent; border: 0; }.keyword { color: #7dd7ff; }.type { color: #7de0b8; }
+@media (max-width: 850px) { .hero { padding: 6rem 0 4.5rem; }.featureGrid, .codeGrid { grid-template-columns: 1fr; }.featureGrid article { padding: 1.5rem 0; }.featureGrid article + article { border-left: 0; border-top: 1px solid #ced9df; padding-left: 0; }.codeGrid { gap: 3rem; }.install { font-size: .72rem; max-width: 100%; }.title { font-size: 3.6rem; } }

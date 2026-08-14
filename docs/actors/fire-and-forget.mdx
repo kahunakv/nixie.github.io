@@ -1,0 +1,52 @@
+---
+sidebar_position: 1
+title: Fire-and-forget actors
+---
+
+# Fire-and-forget actors
+
+Implement `IActor<TRequest>` for commands that do not produce a response. Nixie invokes `Receive` asynchronously and processes the actor's messages one at a time.
+
+```csharp
+public sealed record Add(int Amount);
+
+public sealed class CounterActor : IActor<Add>
+{
+    private int count;
+
+    public Task Receive(Add message)
+    {
+        count += message.Amount;
+        return Task.CompletedTask;
+    }
+}
+```
+
+The typed reference accepts only `Add`:
+
+```csharp
+IActorRef<CounterActor, Add> counter =
+    system.Spawn<CounterActor, Add>("orders-counter");
+
+counter.Send(new Add(3));
+```
+
+## Names and lookup
+
+Actor names are unique for an actor type within an `ActorSystem`. A name lets another component recover the same reference later:
+
+```csharp
+IActorRef<CounterActor, Add>? existing =
+    system.Get<CounterActor, Add>("orders-counter");
+```
+
+Spawning the same actor type and name twice throws `NixieException`. Omit the name for an anonymous actor.
+
+## Constructor arguments
+
+Pass extra constructor arguments after the optional name:
+
+```csharp
+IActorRef<ConfiguredActor, Work> actor =
+    system.Spawn<ConfiguredActor, Work>(null, 100, "mode-a");
+```

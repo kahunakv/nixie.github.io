@@ -1,0 +1,42 @@
+---
+sidebar_position: 3
+title: Context, sender, and replies
+---
+
+# Actor context
+
+Ask for a typed context in the actor constructor. Nixie provides it automatically:
+
+```csharp
+public sealed class ParentActor : IActor<string>
+{
+    private readonly IActorContext<ParentActor, string> context;
+    private readonly IActorRef<ChildActor, string> child;
+
+    public ParentActor(IActorContext<ParentActor, string> context)
+    {
+        this.context = context;
+        child = context.ActorSystem.Spawn<ChildActor, string>();
+    }
+
+    public Task Receive(string message)
+    {
+        child.Send(message, context.Self);
+        return Task.CompletedTask;
+    }
+}
+```
+
+| Member | Purpose |
+| --- | --- |
+| `ActorSystem` | The system that owns the actor. |
+| `Self` | A typed reference to the current actor. |
+| `Sender` | The supplied sender reference, when present. |
+| `Logger` | The logger configured on the actor system. |
+| `OnPostShutdown` | Register cleanup work after shutdown. |
+
+Request/response contexts also expose `Reply` and `ByPassReply` for advanced reply flows.
+
+:::note Execution context isolation
+Actor handlers run on the default `ExecutionContext`. Ambient sender values such as `AsyncLocal` do not flow into the handler. Put request-scoped data in the message explicitly.
+:::

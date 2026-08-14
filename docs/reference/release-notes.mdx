@@ -1,0 +1,27 @@
+---
+sidebar_position: 2
+title: Release notes
+---
+
+# Nixie 1.2.5
+
+Version 1.2.5 improves the hot send path and adds admission-aware request/response.
+
+- **Allocation-free actor wakeups.** Runners use `ThreadPool.UnsafeQueueUserWorkItem` and do not capture the sender's `ExecutionContext`.
+- **`TryAsk`.** Reply-capable references check inbox admission before allocating reply state for rejected work.
+- **Execution context isolation.** Handlers run on the default context instead of observing a timing-dependent sender context.
+
+```csharp
+if (worker.TryAsk(request, out Task<Response?>? reply))
+{
+    Response? response = await reply;
+}
+else
+{
+    // Inbox at capacity or runner shut down. Nothing was enqueued.
+}
+```
+
+Control messages remain exempt from inbox bounds. If shutdown races with a successful admission, the returned reply task completes as canceled rather than hanging.
+
+[Read the full release notes on GitHub](https://github.com/kahunakv/nixie/blob/main/RELEASE_NOTES_1.2.5.md)

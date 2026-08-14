@@ -1,0 +1,37 @@
+---
+sidebar_position: 3
+title: Routers
+---
+
+# Routers
+
+Import `Nixie.Routers` to distribute work across actor instances.
+
+```csharp
+using Nixie.Routers;
+
+IActorRef<RoundRobinActor<WorkerActor, WorkItem>, WorkItem> router =
+    system.CreateRoundRobinRouter<WorkerActor, WorkItem>(
+        "workers", instances: 4);
+
+router.Send(new WorkItem("job-1"));
+```
+
+Round-robin routers visit routees in order. You can ask Nixie to create the instances, or pass existing actor references.
+
+## Consistent hashing
+
+Consistent-hash messages implement `IConsistentHashable`:
+
+```csharp
+public sealed class WorkItem : IConsistentHashable
+{
+    public required string Key { get; init; }
+    public int GetHash() => Key.GetHashCode();
+}
+
+var router = system.CreateConsistentHashRouter<WorkerActor, WorkItem>(
+    "hashed-workers", instances: 4);
+```
+
+Use consistent hashing when work with the same key should reach the same routee. Struct variants are available through `CreateRoundRobinRouterStruct` and `CreateConsistentHashRouterStruct`.

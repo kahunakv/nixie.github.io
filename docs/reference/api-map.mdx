@@ -1,0 +1,36 @@
+---
+sidebar_position: 1
+title: API map
+---
+
+# API map
+
+| Need | Interface | Spawn |
+| --- | --- | --- |
+| Class request, no reply | `IActor<TRequest>` | `Spawn` |
+| Class request and reply | `IActor<TRequest, TResponse>` | `Spawn` / `SpawnWithOptions` |
+| Struct request, no reply | `IActorStruct<TRequest>` | `SpawnStruct` |
+| Struct request and reply | `IActorStruct<TRequest, TResponse>` | `SpawnStruct` / options overload |
+| Batched requests | `IActorAggregate<TRequest>` | `SpawnAggregate` |
+| Batched requests and replies | `IActorAggregate<TRequest, TResponse>` | `SpawnAggregate` / options overload |
+
+## Reference operations
+
+| Operation | Meaning |
+| --- | --- |
+| `Send(message)` | Fire and forget. |
+| `Ask(message[, timeout])` | Enqueue and await a typed reply. |
+| `TrySend(message)` | Return whether a bounded actor admitted the message. |
+| `TryAsk(message, out reply)` | Check admission before allocating reply state. |
+
+## Actor system operations
+
+| Area | APIs |
+| --- | --- |
+| Creation | `Spawn*`, `Spawn*WithOptions` |
+| Lookup | `Get`, `GetStruct` |
+| Lifecycle | `Shutdown*`, `GracefulShutdown*`, `Wait` |
+| Scheduling | `ScheduleOnce*`, `StartPeriodicTimer*`, `StopPeriodicTimer`, `StopAllTimers`, `ScheduleShutdown` |
+| Routing | `CreateRoundRobinRouter*`, `CreateConsistentHashRouter*` |
+
+The [source repository](https://github.com/kahunakv/nixie) is the definitive API reference for overloads and generic constraints.

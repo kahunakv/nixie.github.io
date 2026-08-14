@@ -1,0 +1,58 @@
+---
+sidebar_position: 2
+title: Getting started
+description: Install Nixie and send your first typed actor message.
+---
+
+# Getting started
+
+## Install the package
+
+```bash
+dotnet add package Nixie --version 1.2.5
+```
+
+Nixie targets `net8.0`. Add `using Nixie;` wherever you define or spawn actors.
+
+## Define a message and actor
+
+An actor that does not return a response implements `IActor<TRequest>`:
+
+```csharp
+using Nixie;
+
+public sealed record Greet(string Name);
+
+public sealed class GreeterActor : IActor<Greet>
+{
+    public Task Receive(Greet message)
+    {
+        Console.WriteLine($"Hello, {message.Name}!");
+        return Task.CompletedTask;
+    }
+}
+```
+
+## Spawn and send
+
+```csharp
+using ActorSystem system = new();
+
+IActorRef<GreeterActor, Greet> greeter =
+    system.Spawn<GreeterActor, Greet>("greeter");
+
+greeter.Send(new Greet("Nixie"));
+await system.Wait();
+```
+
+`Send` returns immediately. `Wait()` is useful in short-lived programs and tests because it waits until the current actor queues are idle.
+
+:::tip Choose the contract first
+Use `IActor<TRequest>` when delivery is fire-and-forget. Use `IActor<TRequest, TResponse>` when the caller needs a reply. The corresponding actor reference exposes the right operations at compile time.
+:::
+
+## Next steps
+
+- [Fire-and-forget actors](./actors/fire-and-forget)
+- [Request/response with Ask](./actors/request-response)
+- [Actor context and sender references](./actors/context)

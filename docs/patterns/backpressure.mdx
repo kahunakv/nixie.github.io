@@ -1,0 +1,46 @@
+---
+sidebar_position: 1
+title: Backpressure and admission
+---
+
+# Backpressure and admission
+
+Reply, struct-reply, and aggregate-reply actors can bound their ordinary inbox. Use a `*WithOptions` spawn method with `ActorRunnerOptions.MaxInboxSize`:
+
+```csharp
+IActorRef<WorkerActor, WorkItem, WorkResult> worker =
+    system.SpawnWithOptions<WorkerActor, WorkItem, WorkResult>(
+        "worker",
+        new ActorRunnerOptions { MaxInboxSize = 1_000 });
+```
+
+| API | Response | At capacity |
+| --- | --- | --- |
+| `Send` | None | Fire-and-forget semantics |
+| `Ask` | `Task<TResponse?>` | Throws retryable `ActorBusyException` |
+| `TrySend` | `bool` | Returns `false` without delivery |
+| `TryAsk` | `bool` + reply task | Returns `false` before allocating reply state |
+
+```csharp
+if (!worker.TrySend(new WorkItem("job-1")))
+{
+    // Safe to retry: the actor did not receive the message.
+}
+
+if (worker.TryAsk(new WorkItem("job-2"), out Task<WorkResult?>? reply))
+{
+    WorkResult? result = await reply;
+}
+```
+
+## Priority control messages
+
+```csharp
+new ActorRunnerOptions
+{
+    MaxInboxSize = 100,
+    IsControlMessage = message => ((Operation)message).IsCompletion
+};
+```
+
+Control messages are never rejected for capacity on a live runner. FIFO is preserved within ordinary messages and within control messages, while control messages may overtake ordinary work. For struct requests, use `ActorRunnerOptions<TRequest>` to avoid boxing.

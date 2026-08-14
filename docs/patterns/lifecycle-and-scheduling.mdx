@@ -1,0 +1,34 @@
+---
+sidebar_position: 4
+title: Lifecycle and scheduling
+---
+
+# Lifecycle and scheduling
+
+## Timers
+
+```csharp
+system.ScheduleOnce(counter, new Increment(), TimeSpan.FromSeconds(1));
+
+system.StartPeriodicTimer(
+    counter, "counter-timer", new Increment(),
+    initialDelay: TimeSpan.Zero,
+    interval: TimeSpan.FromSeconds(1));
+
+system.StopPeriodicTimer(counter, "counter-timer");
+system.StopAllTimers(counter);
+```
+
+Struct variants use `ScheduleOnceStruct` and `StartPeriodicTimerStruct`.
+
+## Shutdown
+
+```csharp
+bool stopped = system.Shutdown(counter);
+bool stoppedByName = system.Shutdown<CounterActor, Increment>("counter");
+
+bool graceful = await system.GracefulShutdown(
+    counter, TimeSpan.FromSeconds(5));
+```
+
+Schedule shutdown with `ScheduleShutdown`, and use `ShutdownStruct` or `GracefulShutdownStruct` for struct actors. Subscribe to `context.OnPostShutdown` for cleanup. `await system.Wait()` waits until known repositories have no pending messages and no actor is processing.

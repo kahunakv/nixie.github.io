@@ -1,0 +1,35 @@
+---
+sidebar_position: 5
+title: Dependency injection and logging
+---
+
+# Dependency injection and logging
+
+Pass an `IServiceProvider` to the actor system to resolve constructor dependencies:
+
+```csharp
+using Microsoft.Extensions.DependencyInjection;
+using Nixie;
+
+IServiceCollection services = new ServiceCollection();
+services.AddSingleton<IClock, SystemClock>();
+
+using ServiceProvider provider = services.BuildServiceProvider();
+using ActorSystem system = new(provider);
+
+IActorRef<JobActor, RunJob> jobs = system.Spawn<JobActor, RunJob>();
+```
+
+Nixie can combine a typed actor context, registered services, and extra arguments passed to `Spawn`.
+
+## Logging
+
+```csharp
+using ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
+    builder.AddConsole());
+
+using ActorSystem system = new(
+    logger: loggerFactory.CreateLogger("Nixie"));
+```
+
+Actors that request a context can access the same logger through `context.Logger`.
