@@ -9,6 +9,20 @@ function HomepageHeader() {
   return (
     <header className={styles.hero}>
       <div className={styles.glow} />
+      <div className={styles.topology} aria-hidden="true">
+        <svg viewBox="0 0 760 560" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path className={styles.route} d="M92 414C184 414 177 282 270 282C362 282 352 144 458 144C550 144 543 282 654 282" />
+          <path className={`${styles.route} ${styles.routeSlow}`} d="M72 146C165 146 170 396 285 396C393 396 389 244 485 244C585 244 579 104 695 104" />
+          <path className={`${styles.route} ${styles.routeQuiet}`} d="M170 502C212 502 221 452 270 452C320 452 326 508 382 508C438 508 437 399 510 399" />
+          <circle className={styles.node} cx="92" cy="414" r="7" />
+          <circle className={styles.node} cx="270" cy="282" r="10" />
+          <circle className={styles.node} cx="458" cy="144" r="7" />
+          <circle className={styles.node} cx="654" cy="282" r="10" />
+          <circle className={`${styles.node} ${styles.nodeMuted}`} cx="72" cy="146" r="6" />
+          <circle className={`${styles.node} ${styles.nodeMuted}`} cx="485" cy="244" r="6" />
+          <circle className={`${styles.node} ${styles.nodeMuted}`} cx="695" cy="104" r="6" />
+        </svg>
+      </div>
       <div className={`container ${styles.heroInner}`}>
         <div className={styles.eyebrow}><span /> Nixie 1.2.5 · .NET 8</div>
         <Heading as="h1" className={styles.title}>
