@@ -48,6 +48,36 @@ const features = [
   {number: '03', title: 'Small & composable', body: 'Actors, routers, timers, dependency injection, and graceful shutdown—without a distributed runtime to operate.'},
 ];
 
+const performance = [
+  {value: '20M', label: 'messages / second', detail: 'Struct actor · Send'},
+  {value: '14M', label: 'messages / second', detail: 'Class actor · Send'},
+  {value: '1.9µs', label: 'round-trip latency', detail: 'Class actor · Ask'},
+];
+
+function Performance() {
+  return <section className={styles.performanceSection}>
+    <div className={`container ${styles.performanceGrid}`}>
+      <div className={styles.performanceIntro}>
+        <span className={styles.kicker}>Measured, not assumed</span>
+        <Heading as="h2">Speed where<br/>messages matter.</Heading>
+        <p>Nixie keeps the fast path deliberately small: typed in-process delivery built on the Task Parallel Library, with struct messages available when every allocation counts.</p>
+        <Link className={styles.textLink} to="https://github.com/andresgutierrez/nixie/blob/main/BENCHMARKS.md">Read the benchmark method <span>↗</span></Link>
+      </div>
+      <div className={styles.metricPanel}>
+        <div className={styles.metricHeader}><span>Throughput snapshot</span><i>●</i> .NET 8</div>
+        <div className={styles.metrics}>
+          {performance.map((metric) => <div className={styles.metric} key={metric.value}>
+            <strong>{metric.value}</strong>
+            <span>{metric.label}</span>
+            <small>{metric.detail}</small>
+          </div>)}
+        </div>
+        <p className={styles.benchmarkNote}>Apple Arm64 · 8 logical cores · .NET 8.0.8 · no-op counter handler. Results vary with hardware and handler work.</p>
+      </div>
+    </div>
+  </section>;
+}
+
 function CodeSample() {
   return <section className={styles.codeSection}>
     <div className={`container ${styles.codeGrid}`}>
@@ -70,6 +100,7 @@ export default function Home(): ReactNode {
     <Layout title="Typed actors for modern .NET" description="Nixie is a lightweight, strongly typed actor framework for C# and .NET.">
       <HomepageHeader />
       <main>
+        <Performance />
         <section className={styles.featureSection}>
           <div className={`container ${styles.featureGrid}`}>
             {features.map((feature) => <article key={feature.number}>
