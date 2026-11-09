@@ -5,6 +5,8 @@ title: Dependency injection and logging
 
 # Dependency injection and logging
 
+Actors usually need services: a repository, an HTTP client, a clock. Nixie builds actors through the same `IServiceProvider` that the rest of your application uses, so an actor declares its dependencies in its constructor like any other class. You do not need a separate hosting model.
+
 Pass an `IServiceProvider` to the actor system to resolve constructor dependencies:
 
 ```csharp
@@ -33,3 +35,6 @@ using ActorSystem system = new(
 ```
 
 Actors that request a context can access the same logger through `context.Logger`.
+
+Pass a logger in production. Nixie reports exceptions thrown by `Receive` only through this logger. See [Behavior and guarantees](../actors/behavior#errors-in-a-handler).
+

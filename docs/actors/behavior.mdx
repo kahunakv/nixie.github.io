@@ -1,0 +1,66 @@
+---
+sidebar_position: 4
+title: Behavior and guarantees
+description: Ordering, delivery, errors, timeouts, and shutdown behavior for Nixie actors.
+---
+
+# Behavior and guarantees
+
+Actors remove locks from your code, but only if you know exactly what the framework promises. This page lists the rules that every Nixie actor follows, and the places where a message can be lost.
+
+## One message at a time
+
+An actor processes one message at a time. Nixie awaits `Receive` before it starts the next message, so a handler that awaits I/O also holds back the rest of the inbox. Fields inside the actor need no lock, as long as only the actor touches them.
+
+Different actors run in parallel on the .NET thread pool.
+
+## Message order
+
+Each actor delivers messages in the order they entered its inbox (first in, first out). Messages from one caller thread arrive in the order that thread sent them. Nixie does not order messages between different actors.
+
+[Control messages](../patterns/backpressure#priority-control-messages) are the one exception: they can overtake ordinary messages that are already queued.
+
+## Delivery is in-process only
+
+The inbox lives in memory. Nixie does not store messages, retry them, or send them to another process. A queued message is lost when:
+
+- The actor shuts down with `Shutdown`, or `GracefulShutdown` reaches its time limit.
+- The process exits.
+- The inbox is full and the message was sent with `Send` to a reply actor. See [Backpressure and admission](../patterns/backpressure).
+
+A `Send` to an actor that is already shut down does nothing. For a reply actor, `Ask` returns a canceled task in that case, and queued `Ask` calls are canceled at shutdown.
+
+## Errors in a handler
+
+Nixie has no supervision tree, and it does not restart actors. When `Receive` throws:
+
+- Nixie logs the exception through the logger that you pass to `ActorSystem`. Without a logger, nothing reports the exception.
+- The actor keeps its state and processes the next message.
+- For `Ask`, the returned task fails with the same exception, so the caller sees it. For an aggregate reply actor, every request in the batch that has no reply yet fails with that exception.
+
+Catch exceptions inside `Receive` when a failure must change the actor's state.
+
+## Ask timeouts and cancellation
+
+An `Ask` with a timeout throws `AskTimeoutException` when no reply arrives in time. An `Ask` with a `CancellationToken` throws `OperationCanceledException` when the token is canceled.
+
+What happens to the request depends on when the timeout or cancellation occurs:
+
+- If the message is still in the inbox, the actor skips it, and the handler never runs.
+- If the handler already started, it runs to completion, and Nixie discards the reply.
+
+So a timeout does not prove that the work did not happen. Make the handler safe to repeat if callers retry after a timeout.
+
+## Actor names
+
+Names are not case-sensitive: Nixie converts each name to lowercase. A name is unique for one actor type in an `ActorSystem`. Spawning a second actor with the same type and name throws `NixieException`.
+
+## Waiting for idle
+
+`ActorSystem.Wait()` returns when no actor has queued messages and no actor is processing one. It is meant for tests and short programs. It does not wait for messages that timers will send later. After 11 seconds, `Wait()` logs a warning and returns, even if work is still pending.
+
+## Related topics
+
+- [Backpressure and admission](../patterns/backpressure)
+- [Lifecycle and scheduling](../patterns/lifecycle-and-scheduling)
+- [Request and response](./request-response)

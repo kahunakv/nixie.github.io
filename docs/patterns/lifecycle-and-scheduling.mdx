@@ -5,6 +5,8 @@ title: Lifecycle and scheduling
 
 # Lifecycle and scheduling
 
+Long-running services need periodic work, delayed work, and a clean stop. Nixie keeps timers next to the actors they feed: a timer sends an ordinary message to an actor, so the timer's work goes through the same inbox and needs no extra locking. Shutdown can wait for queued work to finish, so a service can stop without losing messages that were already accepted.
+
 ## Timers
 
 ```csharp
@@ -31,4 +33,26 @@ bool graceful = await system.GracefulShutdown(
     counter, TimeSpan.FromSeconds(5));
 ```
 
-Schedule shutdown with `ScheduleShutdown`, and use `ShutdownStruct` or `GracefulShutdownStruct` for struct actors. Subscribe to `context.OnPostShutdown` for cleanup. `await system.Wait()` waits until known repositories have no pending messages and no actor is processing.
+The two methods differ in what happens to queued messages:
+
+- `Shutdown` stops the actor at once and discards its queued messages. For reply actors, pending `Ask` calls are canceled.
+- `GracefulShutdown` waits until the inbox is empty, up to the time limit, then stops the actor. It returns `true` if the inbox emptied in time. On `false`, the remaining messages are discarded.
+
+Both methods also stop the actor's timers. Use `ShutdownStruct` or `GracefulShutdownStruct` for struct actors, and `ScheduleShutdown` to stop an actor after a delay.
+
+To stop every actor in the system, for example when your application stops:
+
+```csharp
+await system.GracefulShutdownAll(TimeSpan.FromSeconds(10));
+```
+
+Subscribe to `context.OnPostShutdown` for cleanup. It runs after the actor stops.
+
+## Waiting for idle
+
+`await system.Wait()` waits until no actor has queued messages and no actor is processing one. Use it in tests and short programs. After 11 seconds, it logs a warning and returns, even if work is still pending. See [Behavior and guarantees](../actors/behavior#waiting-for-idle).
+
+## Related topics
+
+- [Actor context](../actors/context)
+- [Behavior and guarantees](../actors/behavior)

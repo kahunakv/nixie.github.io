@@ -5,6 +5,8 @@ title: Context, sender, and replies
 
 # Actor context
 
+An actor often needs to know about its surroundings: a reference to itself to pass to another actor, the sender of the current message, the logger, or a hook that runs when the actor stops. The actor context gives you all of these.
+
 Ask for a typed context in the actor constructor. Nixie provides it automatically:
 
 ```csharp

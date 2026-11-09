@@ -5,6 +5,8 @@ title: Request and response
 
 # Request and response
 
+Some work needs an answer: a lookup, a balance check, a validation. `Ask` sends a message and returns a typed `Task` that completes with the actor's reply. The caller awaits it like any other async method, and the actor still processes its messages one at a time.
+
 Implement `IActor<TRequest, TResponse>` when callers need a result.
 
 ```csharp
@@ -30,7 +32,24 @@ UserView? user = await users.Ask(
     TimeSpan.FromSeconds(2));
 ```
 
-When the timeout elapses, `Ask` throws `AskTimeoutException`. Overloads can also include an explicit sender reference.
+Reply actors also accept `Send` when the caller does not need the reply.
+
+## Timeouts and cancellation
+
+When the timeout elapses, `Ask` throws `AskTimeoutException`. To tie the wait to a request or to application shutdown, pass a `CancellationToken`:
+
+```csharp
+UserView? user = await users.Ask(
+    new LookupUser(id),
+    TimeSpan.FromSeconds(2),
+    cancellationToken);
+```
+
+A canceled token makes `Ask` throw `OperationCanceledException`. Other overloads take an explicit sender reference (see [Actor context](./context)).
+
+A timeout or cancellation does not always stop the work. If the handler already started, it runs to completion and Nixie discards the reply. If the message is still queued, the handler never runs. See [Behavior and guarantees](./behavior#ask-timeouts-and-cancellation).
+
+If the handler throws, the task returned by `Ask` fails with that exception.
 
 ## Admission-aware asks
 
@@ -48,3 +67,9 @@ else
 ```
 
 A `false` result means the message was never delivered, so retrying is safe. See [Backpressure and admission](../patterns/backpressure).
+
+## Related topics
+
+- [Actor context, sender, and replies](./context)
+- [Backpressure and admission](../patterns/backpressure)
+- [Behavior and guarantees](./behavior)

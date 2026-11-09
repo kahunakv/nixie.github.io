@@ -5,7 +5,15 @@ title: Routers
 
 # Routers
 
-Import `Nixie.Routers` to distribute work across actor instances.
+One actor processes one message at a time. When the work is independent and one actor cannot keep up, a router spreads messages across several copies of the same actor, called routees. Callers keep one typed reference, and the router picks the routee.
+
+A router is itself an actor. Each message goes to the router's inbox first, then to a routee, so the router adds one extra hop.
+
+Import `Nixie.Routers` to create routers.
+
+## Round-robin
+
+A round-robin router sends each message to the next routee in turn:
 
 ```csharp
 using Nixie.Routers;
@@ -17,11 +25,11 @@ IActorRef<RoundRobinActor<WorkerActor, WorkItem>, WorkItem> router =
 router.Send(new WorkItem("job-1"));
 ```
 
-Round-robin routers visit routees in order. You can ask Nixie to create the instances, or pass existing actor references.
+You can ask Nixie to create the instances, or pass existing actor references.
 
 ## Consistent hashing
 
-Consistent-hash messages implement `IConsistentHashable`:
+Use a consistent-hash router when work with the same key must reach the same routee, for example so that one routee owns all state for one customer. Messages implement `IConsistentHashable`:
 
 ```csharp
 public sealed class WorkItem : IConsistentHashable
@@ -34,4 +42,31 @@ var router = system.CreateConsistentHashRouter<WorkerActor, WorkItem>(
     "hashed-workers", instances: 4);
 ```
 
-Use consistent hashing when work with the same key should reach the same routee. Struct variants are available through `CreateRoundRobinRouterStruct` and `CreateConsistentHashRouterStruct`.
+The router picks the routee from `GetHash()` and the number of routees. The routee list does not change after you create the router, so the same hash always reaches the same routee.
+
+## Least busy
+
+A balancing router sends each message to a routee that is idle, or else to the routee with the fewest queued messages. Use it when message costs vary a lot, so a slow message does not hold up a queue that a round-robin router keeps filling:
+
+```csharp
+IActorRef<BalancingActor<WorkerActor, WorkItem>, WorkItem> router =
+    system.CreateBalancingRouter<WorkerActor, WorkItem>(
+        "balanced-workers", instances: 4);
+```
+
+The queue counts are approximate under concurrency, so the choice is a best effort. Balancing routers support fire-and-forget class actors only.
+
+## Router variants
+
+| Router | Class actors | Struct actors |
+| --- | --- | --- |
+| Round-robin | `CreateRoundRobinRouter` | `CreateRoundRobinRouterStruct` |
+| Consistent hash | `CreateConsistentHashRouter` | `CreateConsistentHashRouterStruct` |
+| Balancing | `CreateBalancingRouter` (fire-and-forget only) | Not available |
+
+Round-robin and consistent-hash routers have overloads for fire-and-forget actors and for reply actors.
+
+## Related topics
+
+- [Backpressure and admission](./backpressure)
+- [Struct and aggregate actors](./struct-and-aggregate-actors)

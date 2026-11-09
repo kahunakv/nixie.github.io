@@ -130,7 +130,7 @@ const config: Config = {
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.vsDark,
-      additionalLanguages: ['csharp'],
+      additionalLanguages: ['csharp', 'bash'],
     },
   } satisfies Preset.ThemeConfig,
 };

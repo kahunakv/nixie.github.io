@@ -5,23 +5,27 @@ title: API map
 
 # API map
 
+Use this page to find the right interface and method. Each row links the need to the API that serves it.
+
 | Need | Interface | Spawn |
 | --- | --- | --- |
-| Class request, no reply | `IActor<TRequest>` | `Spawn` |
+| Class request, no reply | `IActor<TRequest>` | `Spawn` / `SpawnWithOptions` |
 | Class request and reply | `IActor<TRequest, TResponse>` | `Spawn` / `SpawnWithOptions` |
-| Struct request, no reply | `IActorStruct<TRequest>` | `SpawnStruct` |
-| Struct request and reply | `IActorStruct<TRequest, TResponse>` | `SpawnStruct` / options overload |
-| Batched requests | `IActorAggregate<TRequest>` | `SpawnAggregate` |
-| Batched requests and replies | `IActorAggregate<TRequest, TResponse>` | `SpawnAggregate` / options overload |
+| Struct request, no reply | `IActorStruct<TRequest>` | `SpawnStruct` / `SpawnStructWithOptions` |
+| Struct request and reply | `IActorStruct<TRequest, TResponse>` | `SpawnStruct` / `SpawnStructWithOptions` |
+| Batched requests | `IActorAggregate<TRequest>` | `SpawnAggregate` / `SpawnAggregateWithOptions` |
+| Batched requests and replies | `IActorAggregate<TRequest, TResponse>` | `SpawnAggregate` / `SpawnAggregateWithOptions` |
 
 ## Reference operations
 
-| Operation | Meaning |
-| --- | --- |
-| `Send(message)` | Fire and forget. |
-| `Ask(message[, timeout])` | Enqueue and await a typed reply. |
-| `TrySend(message)` | Return whether a bounded actor admitted the message. |
-| `TryAsk(message, out reply)` | Check admission before allocating reply state. |
+| Operation | Available on | Meaning |
+| --- | --- | --- |
+| `Send(message[, sender])` | All actors | Fire and forget. |
+| `Ask(message[, sender][, timeout][, cancellationToken])` | Reply actors | Enqueue and await a typed reply. |
+| `TrySend(message[, sender])` | Reply actors | Return whether a bounded actor admitted the message. |
+| `TryAsk(message[, sender], out reply)` | Reply actors | Check admission before allocating reply state. |
+
+Not every combination of the optional `Ask` arguments has an overload. Your IDE shows the exact list.
 
 ## Actor system operations
 
@@ -29,8 +33,16 @@ title: API map
 | --- | --- |
 | Creation | `Spawn*`, `Spawn*WithOptions` |
 | Lookup | `Get`, `GetStruct` |
-| Lifecycle | `Shutdown*`, `GracefulShutdown*`, `Wait` |
+| Lifecycle | `Shutdown*`, `GracefulShutdown*`, `GracefulShutdownAll`, `Wait` |
 | Scheduling | `ScheduleOnce*`, `StartPeriodicTimer*`, `StopPeriodicTimer`, `StopAllTimers`, `ScheduleShutdown` |
-| Routing | `CreateRoundRobinRouter*`, `CreateConsistentHashRouter*` |
+| Routing | `CreateRoundRobinRouter*`, `CreateConsistentHashRouter*`, `CreateBalancingRouter` |
+
+## Exceptions
+
+| Exception | Thrown when |
+| --- | --- |
+| `ActorBusyException` | A bounded inbox is full. Safe to retry. |
+| `AskTimeoutException` | An `Ask` with a timeout received no reply in time. |
+| `NixieException` | The API is used incorrectly. Examples: a duplicate actor name, a duplicate timer name, or a router with no routees. |
 
 The [source repository](https://github.com/kahunakv/nixie) is the definitive API reference for overloads and generic constraints.

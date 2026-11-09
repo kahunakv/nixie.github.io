@@ -36,7 +36,7 @@ function HomepageHeader() {
           <Link className={styles.primaryButton} to="/docs/getting-started">Start building <span>→</span></Link>
           <Link className={styles.secondaryButton} to="https://github.com/kahunakv/nixie">View on GitHub</Link>
         </div>
-        <div className={styles.install}><span>$</span><code>dotnet add package Nixie --version 1.2.5</code></div>
+        <div className={styles.install}><span>$</span><code>dotnet add package Nixie</code></div>
       </div>
     </header>
   );
@@ -61,7 +61,7 @@ function Performance() {
         <span className={styles.kicker}>Measured, not assumed</span>
         <Heading as="h2">Speed where<br/>messages matter.</Heading>
         <p>Nixie keeps the fast path deliberately small: typed in-process delivery built on the Task Parallel Library, with struct messages available when every allocation counts.</p>
-        <Link className={styles.textLink} to="https://github.com/andresgutierrez/nixie/blob/main/BENCHMARKS.md">Read the benchmark method <span>↗</span></Link>
+        <Link className={styles.textLink} to="https://github.com/kahunakv/nixie/blob/main/BENCHMARKS.md">Read the benchmark method <span>↗</span></Link>
       </div>
       <div className={styles.metricPanel}>
         <div className={styles.metricHeader}><span>Throughput snapshot</span><i>●</i> .NET 8</div>

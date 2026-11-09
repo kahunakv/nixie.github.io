@@ -5,7 +5,11 @@ title: Backpressure and admission
 
 # Backpressure and admission
 
-Reply, struct-reply, and aggregate-reply actors can bound their ordinary inbox. Use a `*WithOptions` spawn method with `ActorRunnerOptions.MaxInboxSize`:
+By default, an actor's inbox has no limit. If producers send faster than the actor can process, the backlog grows until memory runs out, and latency grows with it. A bounded inbox stops that: when the inbox is full, Nixie rejects new messages, and the caller decides whether to back off, retry, or shed the work. This works like `BoundedChannelOptions.Capacity` on a `Channel<T>`, but the caller also learns whether each message was admitted.
+
+## Bound an inbox
+
+Every actor type can bound its inbox. Use a `*WithOptions` spawn method with `ActorRunnerOptions.MaxInboxSize`:
 
 ```csharp
 IActorRef<WorkerActor, WorkItem, WorkResult> worker =
@@ -14,17 +18,31 @@ IActorRef<WorkerActor, WorkItem, WorkResult> worker =
         new ActorRunnerOptions { MaxInboxSize = 1_000 });
 ```
 
-| API | Response | At capacity |
+The other spawn methods have the same form: `SpawnStructWithOptions` and `SpawnAggregateWithOptions`.
+
+## What happens when the inbox is full
+
+The behavior depends on whether the actor returns a reply.
+
+| Operation | Fire-and-forget actors | Reply actors |
 | --- | --- | --- |
-| `Send` | None | Fire-and-forget semantics |
-| `Ask` | `Task<TResponse?>` | Throws retryable `ActorBusyException` |
-| `TrySend` | `bool` | Returns `false` without delivery |
-| `TryAsk` | `bool` + reply task | Returns `false` before allocating reply state |
+| `Send` | Throws `ActorBusyException` | Drops the message without an error |
+| `Ask` | Not available | The returned task fails with `ActorBusyException` |
+| `TrySend` | Not available | Returns `false` |
+| `TryAsk` | Not available | Returns `false` and allocates no reply state |
+
+Fire-and-forget actors implement `IActor<TRequest>`, `IActorStruct<TRequest>`, or `IActorAggregate<TRequest>`. Reply actors implement the two-parameter versions of those interfaces.
+
+:::warning `Send` to a full reply actor loses the message
+On a bounded reply actor, `Send` does not report rejection. Use `TrySend` when you must know whether the actor admitted the message.
+:::
+
+A rejected message never entered the inbox, so it is safe to retry. `ActorBusyException` is thrown only for capacity, not for errors inside the actor.
 
 ```csharp
 if (!worker.TrySend(new WorkItem("job-1")))
 {
-    // Safe to retry: the actor did not receive the message.
+    // Not enqueued: back off, retry, or shed the work.
 }
 
 if (worker.TryAsk(new WorkItem("job-2"), out Task<WorkResult?>? reply))
@@ -33,14 +51,36 @@ if (worker.TryAsk(new WorkItem("job-2"), out Task<WorkResult?>? reply))
 }
 ```
 
+`TrySend` and `TryAsk` also return `false` when the actor is shut down.
+
 ## Priority control messages
 
+Some messages must never wait behind a backlog, or be rejected by it. For example, a message that completes or cancels work the actor already accepted. Mark these as control messages with `IsControlMessage`:
+
 ```csharp
-new ActorRunnerOptions
+public abstract record JobMessage;
+public sealed record StartJob(string Id) : JobMessage;
+public sealed record CancelJob(string Id) : JobMessage;
+
+new ActorRunnerOptions<JobMessage>
 {
     MaxInboxSize = 100,
-    IsControlMessage = message => ((Operation)message).IsCompletion
+    IsControlMessage = message => message is CancelJob
 };
 ```
 
-Control messages are never rejected for capacity on a live runner. FIFO is preserved within ordinary messages and within control messages, while control messages may overtake ordinary work. For struct requests, use `ActorRunnerOptions<TRequest>` to avoid boxing.
+Control messages behave as follows:
+
+- The inbox limit does not apply to them on a live actor.
+- They are delivered before ordinary messages that are already queued.
+- Order is first in, first out within control messages, and within ordinary messages. Between the two groups, order is not preserved.
+
+Only reply actors support control messages. Fire-and-forget actors ignore `IsControlMessage`.
+
+`ActorRunnerOptions<TRequest>` passes the message to `IsControlMessage` as its real type. Use it for struct messages: the non-generic `ActorRunnerOptions` passes the message as `object`, which boxes a struct on every call.
+
+## Related topics
+
+- [Request and response](../actors/request-response)
+- [Behavior and guarantees](../actors/behavior)
+- [Struct and aggregate actors](./struct-and-aggregate-actors)

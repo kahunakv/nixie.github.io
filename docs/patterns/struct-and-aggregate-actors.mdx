@@ -5,6 +5,8 @@ title: Struct and aggregate actors
 
 # Struct and aggregate actors
 
+Two actor variants trade a little flexibility for speed. Struct actors take value-type messages, so a busy actor does not allocate a heap object for every message. Aggregate actors take many queued messages at once, so a handler can write one batch instead of many single rows.
+
 ## Struct messages
 
 Use the struct interfaces and `SpawnStruct` when request or response messages are value types:
@@ -40,3 +42,9 @@ IActorRefAggregate<BatchWriter, WriteItem> writer =
 ```
 
 Aggregate request/response actors implement `IActorAggregate<TRequest, TResponse>` and receive a `List<ActorMessageReply<TRequest, TResponse>>`, allowing each request to complete its own reply.
+
+## Related topics
+
+- [Backpressure and admission](./backpressure)
+- [Routers](./routers)
+

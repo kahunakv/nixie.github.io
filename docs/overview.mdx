@@ -14,6 +14,12 @@ caller ── typed message ──▶ actor inbox ──▶ Receive(message)
        ◀── typed Task<T> ────────────────┘  (Ask only)
 ```
 
+## What is an actor?
+
+Shared mutable state usually needs a `lock`, and every caller must remember to take it. An actor turns that around. The state lives inside the actor, and the actor processes one message at a time from its inbox, a queue that belongs to that actor. Callers send messages instead of touching the state, so the actor needs no lock.
+
+If you have written a `Channel<T>` with a single consumer loop that owns some state, you have built an actor by hand. Nixie gives you that pattern with typed references, request/response, lookup by name, timers, routers, and shutdown already in place.
+
 ## What you get
 
 - **Compile-time contracts.** Request and response types are part of every actor interface and reference.
@@ -27,10 +33,19 @@ caller ── typed message ──▶ actor inbox ──▶ Receive(message)
 
 Nixie is a good fit when a single .NET process needs isolated mutable state, serialized per-actor work, or high-volume message passing without coordinating locks by hand. It does not provide cluster membership, remote transport, or durable message storage; choose a distributed actor runtime when those are requirements.
 
+## Compared with alternatives
+
+| Option | What it gives you | Choose it over Nixie when |
+| --- | --- | --- |
+| `Channel<T>`, TPL Dataflow | Fast queues and blocks. You write the consumer loop, state ownership, replies, and lifecycle yourself. | You need one queue, not many independent actors with replies and lookup. |
+| Akka.NET, Proto.Actor | Full actor toolkits with supervision hierarchies, remoting, and clustering. | Actors must span machines, or you want a parent actor to restart a failed child. |
+| Microsoft Orleans | Virtual actors (grains) that the runtime activates on demand across a cluster, with pluggable state storage. | You need actors that are distributed and keep their state across restarts. |
+
+Nixie stays in one process and has no supervision tree. An exception in a handler is logged, and the actor keeps processing messages. See [Behavior and guarantees](./actors/behavior).
+
 ## Requirements
 
 - .NET SDK 8.0 or later
-- Nixie 1.2.5
 - Nullable reference types are recommended
 
 [Install Nixie and build your first actor →](./getting-started)

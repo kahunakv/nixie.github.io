@@ -9,7 +9,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Core concepts',
-      items: ['actors/fire-and-forget', 'actors/request-response', 'actors/context'],
+      items: ['actors/fire-and-forget', 'actors/request-response', 'actors/context', 'actors/behavior'],
     },
     {
       type: 'category',

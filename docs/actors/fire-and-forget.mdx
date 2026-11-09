@@ -5,7 +5,9 @@ title: Fire-and-forget actors
 
 # Fire-and-forget actors
 
-Implement `IActor<TRequest>` for commands that do not produce a response. Nixie invokes `Receive` asynchronously and processes the actor's messages one at a time.
+Many messages are commands: record an event, update a counter, start a job. The caller does not need to wait for them. With `Send`, the caller enqueues the message and continues immediately, and the actor processes its messages one at a time, so its state needs no lock.
+
+Implement `IActor<TRequest>` for commands that do not produce a response.
 
 ```csharp
 public sealed record Add(int Amount);
@@ -40,7 +42,7 @@ IActorRef<CounterActor, Add>? existing =
     system.Get<CounterActor, Add>("orders-counter");
 ```
 
-Spawning the same actor type and name twice throws `NixieException`. Omit the name for an anonymous actor.
+Names are not case-sensitive. Spawning the same actor type and name twice throws `NixieException`. Omit the name for an anonymous actor.
 
 ## Constructor arguments
 
@@ -50,3 +52,9 @@ Pass extra constructor arguments after the optional name:
 IActorRef<ConfiguredActor, Work> actor =
     system.Spawn<ConfiguredActor, Work>(null, 100, "mode-a");
 ```
+
+## Related topics
+
+- [Request and response](./request-response)
+- [Behavior and guarantees](./behavior)
+- [Backpressure and admission](../patterns/backpressure)
