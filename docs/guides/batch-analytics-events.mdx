@@ -108,16 +108,16 @@ The actor takes every event that is waiting in its inbox, passes them to `Receiv
 sequenceDiagram
     participant Callers
     participant Inbox
-    participant Actor as AnalyticsActor
+    participant Batcher as AnalyticsActor
     participant API as Analytics API
     Callers->>Inbox: Send(e1)
-    Inbox->>Actor: Receive([e1])
-    Actor->>API: SendBatchAsync, 1 event
+    Inbox->>Batcher: Receive([e1])
+    Batcher->>API: SendBatchAsync, 1 event
     Callers->>Inbox: Send(e2) to Send(e50)
     Note over Inbox: e2 to e50 wait while the first call runs
-    API-->>Actor: Done
-    Inbox->>Actor: Receive([e2 ... e50])
-    Actor->>API: SendBatchAsync, 49 events
+    API-->>Batcher: Done
+    Inbox->>Batcher: Receive([e2 ... e50])
+    Batcher->>API: SendBatchAsync, 49 events
 ```
 
 So the batch size follows the load:

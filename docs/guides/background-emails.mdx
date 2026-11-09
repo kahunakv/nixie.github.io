@@ -14,13 +14,13 @@ An actor gives you a small, explicit queue instead. The endpoint calls `Send`, w
 sequenceDiagram
     participant Client
     participant Endpoint as POST /signup
-    participant Actor as EmailActor
+    participant Worker as EmailActor
     participant Provider as Email provider
     Client->>Endpoint: Sign up
-    Endpoint->>Actor: Send(SendEmail)
+    Endpoint->>Worker: Send(SendEmail)
     Endpoint-->>Client: 200 OK
-    Actor->>Provider: SendAsync
-    Provider-->>Actor: Done
+    Worker->>Provider: SendAsync
+    Provider-->>Worker: Done
 ```
 
 The response leaves before the email does. The provider's latency no longer appears in your endpoint's latency.
