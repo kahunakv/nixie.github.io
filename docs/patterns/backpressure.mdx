@@ -33,7 +33,7 @@ The behavior depends on whether the actor returns a reply.
 
 Fire-and-forget actors implement `IActor<TRequest>`, `IActorStruct<TRequest>`, or `IActorAggregate<TRequest>`. Reply actors implement the two-parameter versions of those interfaces.
 
-:::warning `Send` to a full reply actor loses the message
+:::warning[`Send` to a full reply actor loses the message]
 On a bounded reply actor, `Send` does not report rejection. Use `TrySend` when you must know whether the actor admitted the message.
 :::
 

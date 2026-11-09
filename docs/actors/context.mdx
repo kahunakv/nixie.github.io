@@ -39,6 +39,6 @@ public sealed class ParentActor : IActor<string>
 
 Request/response contexts also expose `Reply` and `ByPassReply` for advanced reply flows.
 
-:::note Execution context isolation
+:::note[Execution context isolation]
 Actor handlers run on the default `ExecutionContext`. Ambient sender values such as `AsyncLocal` do not flow into the handler. Put request-scoped data in the message explicitly.
 :::

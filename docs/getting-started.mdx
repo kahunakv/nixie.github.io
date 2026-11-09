@@ -47,7 +47,7 @@ await system.Wait();
 
 `Send` returns immediately. `Wait()` is useful in short-lived programs and tests because it waits until the current actor queues are idle.
 
-:::tip Choose the contract first
+:::tip[Choose the contract first]
 Use `IActor<TRequest>` when delivery is fire-and-forget. Use `IActor<TRequest, TResponse>` when the caller needs a reply. The corresponding actor reference exposes the right operations at compile time.
 :::
 

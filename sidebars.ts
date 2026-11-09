@@ -24,6 +24,11 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
+      label: 'Guides',
+      items: ['guides/background-emails', 'guides/batch-analytics-events'],
+    },
+    {
+      type: 'category',
       label: 'Reference',
       items: ['reference/api-map', 'reference/release-notes'],
     },
